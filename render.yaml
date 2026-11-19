@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: morelogin-bot
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: python main.py
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: BOT_TOKEN
+        sync: false
+      - key: ADMIN_IDS
+        sync: false
+      - key: DEFAULT_EMAIL_PREFIX
+        value: priyaahmed210208
+      - key: DEFAULT_PASSWORD
+        value: MoreLogin@2026!
+      - key: ENABLE_WEB_DASHBOARD
+        value: "true"
+      - key: REALTIME_ADMIN_PUSH
+        value: "true"

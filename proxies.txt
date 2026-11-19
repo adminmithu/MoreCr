@@ -1,0 +1,17 @@
+# ========================================================
+# MoreLogin Creator - Proxy List (IP Rotation)
+# ========================================================
+# Paste your proxies below (one per line).
+# Every time an account is created, the bot automatically rotates to the next proxy!
+#
+# Supported Formats:
+#   1. ip:port
+#   2. ip:port:username:password
+#   3. http://username:password@ip:port
+#   4. socks5://username:password@ip:port
+#
+# Example:
+# 192.168.1.1:8080
+# 45.142.28.12:8000:myuser:mypassword
+# http://user123:pass456@104.238.150.10:8080
+# ========================================================
