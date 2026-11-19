@@ -29,14 +29,14 @@ async def notify_admins_activity(
     user_display = f"{html.escape(full_name or 'User')} (@{html.escape(username)})" if username else html.escape(full_name or 'User')
     
     alert_text = (
-        f"🔴 <b>[রিয়েলটাইম বাটন ক্লিক নোটিফিকেশন]</b>\n"
-        f"⏰ সময়: <code>{now_str}</code>\n"
-        f"👤 ইউজার: <b>{user_display}</b>\n"
-        f"🆔 আইডি: <code>{user_id}</code>\n"
-        f"🔘 বাটন/অ্যাকশন: <b>{html.escape(button_name)}</b>\n"
+        f"🔴 <b>[Real-time Button Click Alert]</b>\n"
+        f"⏰ Time: <code>{now_str}</code>\n"
+        f"👤 User: <b>{user_display}</b>\n"
+        f"🆔 User ID: <code>{user_id}</code>\n"
+        f"🔘 Action/Button: <b>{html.escape(button_name)}</b>\n"
     )
     if details:
-        alert_text += f"📝 তথ্য: <i>{html.escape(details)}</i>\n"
+        alert_text += f"📝 Details: <i>{html.escape(details)}</i>\n"
 
     for admin_id in ADMIN_IDS:
         if admin_id == user_id:
@@ -55,27 +55,27 @@ async def show_admin_panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     if not is_admin(user_id):
         await update.message.reply_text(
-            "❌ শুধুমাত্র অনুমোদিত অ্যাডমিন এই প্যানেল দেখতে পারেন।",
+            "❌ Access denied: Authorized admins only.",
             reply_markup=get_main_keyboard(False)
         )
         return
 
     alerts_on = db.is_live_alerts_enabled(user_id)
-    alert_status = "চালু (ON) 🔔" if alerts_on else "বন্ধ (OFF) 🔕"
+    alert_status = "Active 🔔" if alerts_on else "Disabled 🔕"
     stats = db.get_system_stats()
 
     text = (
-        f"👑 <b>অ্যাডমিন কন্ট্রোল প্যানেল (Admin Panel)</b>\n\n"
-        f"📊 <b>তাৎক্ষণিক পরিসংখ্যান:</b>\n"
-        f"• মোট ইউজার: <b>{stats['total_users']}</b> জন\n"
-        f"• মোট তৈরি একাউন্ট: <b>{stats['total_accounts']}</b> টি\n"
-        f"• আজকে তৈরি একাউন্ট: <b>{stats['today_accounts']}</b> টি\n"
-        f"• আজকের মোট বাটন ক্লিক: <b>{stats['today_clicks']}</b> বার\n"
-        f"• উত্তর বাকি সাপোর্ট মেসেজ: <b>{stats['pending_support']}</b> টি\n"
-        f"• লাইভ ক্লিক অ্যালার্ট: <b>{alert_status}</b>\n\n"
-        f"🌐 <b>লাইভ ব্রাউজার অটোমেশন ড্যাশবোর্ড:</b>\n"
-        f"পিসির ব্রাউজারে খুলুন: <code>http://localhost:8080/</code>\n\n"
-        f"<i>নিচের মেনু বাটনগুলো দিয়ে মনিটরিং ও কন্ট্রোল করুন:</i>"
+        f"👑 <b>Admin Control Panel</b>\n\n"
+        f"📊 <b>Instant Analytics:</b>\n"
+        f"• Total Users: <b>{stats['total_users']}</b>\n"
+        f"• Total Accounts Created: <b>{stats['total_accounts']}</b>\n"
+        f"• Accounts Created Today: <b>{stats['today_accounts']}</b>\n"
+        f"• Button Clicks Today: <b>{stats['today_clicks']}</b>\n"
+        f"• Pending Support Messages: <b>{stats['pending_support']}</b>\n"
+        f"• Real-time Push Alerts: <b>{alert_status}</b>\n\n"
+        f"🌐 <b>Live Browser Automation Dashboard:</b>\n"
+        f"Open on PC browser: <code>http://localhost:8080/</code>\n\n"
+        f"<i>Select an option below to manage the bot:</i>"
     )
 
     await update.message.reply_text(
@@ -91,9 +91,9 @@ async def toggle_live_alerts(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
     new_status = db.toggle_admin_live_alerts(user_id)
     if new_status:
-        msg = "🔔 <b>লাইভ ক্লিক পুশ অ্যালার্ট চালু করা হয়েছে!</b>\nএখন থেকে যেকোনো ইউজার যেকোনো বাটনে চাপ দিলেই আপনি সাথে সাথে টেলিগ্রাম মেসেজে অ্যালার্ট পাবেন।"
+        msg = "🔔 <b>Live Click Push Alerts Enabled!</b>\nYou will now receive instant Telegram messages whenever any user clicks any button."
     else:
-        msg = "🔕 <b>লাইভ ক্লিক পুশ অ্যালার্ট বন্ধ করা হয়েছে!</b>\nআপনি চাইলে যেকোনো সময় পুনরায় চালু করতে পারবেন।"
+        msg = "🔕 <b>Live Click Push Alerts Disabled!</b>\nYou can re-enable alerts anytime from this menu."
 
     await update.message.reply_text(
         text=msg,
@@ -108,9 +108,9 @@ async def show_live_feed(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     activities = db.get_recent_activities(limit=15)
     if not activities:
-        text = "📡 <b>সাম্প্রতিক কোনো অ্যাক্টিভিটি পাওয়া যায়নি।</b>"
+        text = "📡 <b>No recent user activities found.</b>"
     else:
-        text = "📡 <b>রিয়েলটাইম ইউজার অ্যাক্টিভিটি ফিড (সর্বশেষ ১৫টি):</b>\n\n"
+        text = "📡 <b>Real-time User Activity Feed (Last 15 Events):</b>\n\n"
         for act in activities:
             time_val = act['timestamp'].split()[-1] if ' ' in act['timestamp'] else act['timestamp']
             u_name = f"@{act['username']}" if act['username'] else f"ID: {act['user_id']}"
@@ -118,7 +118,7 @@ async def show_live_feed(update: Update, context: ContextTypes.DEFAULT_TYPE):
             det = f" - <i>{html.escape(act['details'])}</i>" if act['details'] else ""
             text += f"• <code>[{time_val}]</code> <b>{html.escape(u_name)}</b> 👉 <b>{html.escape(btn)}</b>{det}\n"
 
-    text += "\n<i>(ইউজাররা বাটনে চাপ দিলে ডাটাবেসে রিয়েলটাইমে রেকর্ড হয়)</i>"
+    text += "\n<i>(Recorded live in database on every user interaction)</i>"
     await update.message.reply_text(
         text=text,
         reply_markup=get_admin_keyboard(),
@@ -132,12 +132,12 @@ async def show_system_stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     stats = db.get_system_stats()
     text = (
-        f"📊 <b>বিস্তারিত বট অ্যানালিটিক্স ও রিপোর্ট</b>\n\n"
-        f"👥 মোট রেজিস্টার্ড ইউজার: <b>{stats['total_users']}</b> জন\n"
-        f"⚡ মোট তৈরি করা MoreLogin একাউন্ট: <b>{stats['total_accounts']}</b> টি\n"
-        f"📅 আজকে তৈরি একাউন্ট: <b>{stats['today_accounts']}</b> টি\n"
-        f"🖱️ আজকে বট ক্লিক/ইন্টারেকশন: <b>{stats['today_clicks']}</b> বার\n"
-        f"📩 পেন্ডিং সাপোর্ট রিকোয়েস্ট: <b>{stats['pending_support']}</b> টি\n"
+        f"📊 <b>Detailed Bot Analytics & Performance</b>\n\n"
+        f"👥 Total Registered Users: <b>{stats['total_users']}</b>\n"
+        f"⚡ Total MoreLogin Accounts: <b>{stats['total_accounts']}</b>\n"
+        f"📅 Accounts Created Today: <b>{stats['today_accounts']}</b>\n"
+        f"🖱️ Bot Interactions Today: <b>{stats['today_clicks']}</b>\n"
+        f"📩 Pending Support Queries: <b>{stats['pending_support']}</b>\n"
     )
     await update.message.reply_text(
         text=text,
@@ -151,12 +151,12 @@ async def show_user_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     user_ids = db.get_all_user_ids()
-    text = f"👥 <b>বট ইউজারদের তালিকা (মোট {len(user_ids)} জন):</b>\n\n"
+    text = f"👥 <b>Registered Users List ({len(user_ids)} Total):</b>\n\n"
     for uid in user_ids[:20]:
         cnt = db.get_user_account_count(uid)
-        text += f"• ইউজার আইডি: <code>{uid}</code> (তৈরিকৃত একাউন্ট: <b>{cnt}</b> টি)\n"
+        text += f"• User ID: <code>{uid}</code> (Created Accounts: <b>{cnt}</b>)\n"
     if len(user_ids) > 20:
-        text += f"\n<i>...এবং আরও {len(user_ids)-20} জন ইউজার।</i>"
+        text += f"\n<i>...and {len(user_ids)-20} more users.</i>"
     await update.message.reply_text(
         text=text,
         reply_markup=get_admin_keyboard(),
@@ -171,20 +171,20 @@ async def show_support_inbox(update: Update, context: ContextTypes.DEFAULT_TYPE)
     pending = db.get_pending_support_tickets()
     if not pending:
         await update.message.reply_text(
-            text="📩 <b>বর্তমানে কোনো পেন্ডিং সাপোর্ট মেসেজ নেই!</b>\nসব মেসেজের সমাধান হয়েছে।",
+            text="📩 <b>Support Inbox is Clear!</b>\nThere are no pending support tickets.",
             reply_markup=get_admin_keyboard(),
             parse_mode="HTML"
         )
         return
 
-    text = f"📩 <b>পেন্ডিং সাপোর্ট মেসেজ (মোট {len(pending)} টি):</b>\n\n"
+    text = f"📩 <b>Pending Support Messages ({len(pending)} Total):</b>\n\n"
     for t in pending[:5]:
         uname = f"@{t['username']}" if t['username'] else f"ID: {t['user_id']}"
         text += (
-            f"🎫 <b>টিকেট #{t['id']}</b> | ইউজার: <b>{html.escape(uname)}</b>\n"
-            f"💬 মেসেজ: <i>{html.escape(t['message'])}</i>\n"
-            f"⏰ সময়: <code>{t['created_at']}</code>\n"
-            f"👉 রিপ্লাই দিতে টাইপ করুন: <code>/reply {t['id']} আপনার উত্তর</code>\n\n"
+            f"🎫 <b>Ticket #{t['id']}</b> | User: <b>{html.escape(uname)}</b>\n"
+            f"💬 Message: <i>{html.escape(t['message'])}</i>\n"
+            f"⏰ Time: <code>{t['created_at']}</code>\n"
+            f"👉 To reply, send: <code>/reply {t['id']} Your response</code>\n\n"
         )
     await update.message.reply_text(
         text=text,
@@ -200,9 +200,10 @@ async def start_broadcast_prompt(update: Update, context: ContextTypes.DEFAULT_T
     context.user_data["awaiting_broadcast"] = True
     await update.message.reply_text(
         text=(
-            "📢 <b>সকল ইউজারের কাছে ব্রডকাস্ট নোটিশ পাঠান</b>\n\n"
-            "আপনি সকল ইউজারকে যে নোটিশ পাঠাতে চান তা লিখে মেসেজ আকারে পাঠান।\n"
-            "বাতিল করতে চাইলে নিচের <b>❌ বাতিল</b> বাটনে চাপ দিন।"
+            "📢 <b>Broadcast Announcement to All Users</b>\n\n"
+            "Please type your message and send it now.\n"
+            "It will be delivered to all registered bot users.\n\n"
+            "To cancel, tap <b>❌ Cancel</b> below."
         ),
         reply_markup=get_cancel_keyboard(),
         parse_mode="HTML"
